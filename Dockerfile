@@ -1,4 +1,4 @@
-FROM phusion/baseimage
+FROM phusion/baseimage:0.9.22
 MAINTAINER M.Chan <mo@lxooo.com>
 
 # 设置环境变量

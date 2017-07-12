@@ -1,5 +1,3 @@
 .DS_Store
 .dockerignore
-/base
-/beanstalkd
-/HyperLara.ubuntu
+/Test

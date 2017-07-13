@@ -12,6 +12,8 @@ COL_CYAN=$ESC_SEQ"36;01m"
 
 # Commonly Used Aliases
 alias ..="cd .."
+alias ...='cd ../..'
+alias ....='cd ../../..'
 alias c="clear"
 alias cla="clear && ls -l"
 alias cll="clear && ls -la"
@@ -19,12 +21,17 @@ alias cls="clear && ls"
 alias code="cd /var/www"
 alias ea="vi ~/aliases"
 alias g="gulp"
+alias h="cd ~"
 alias home="cd ~"
+alias hc='h && c'
+alias back='cd $OLDPWD'
 alias npm-global="npm list -g --depth 0"
 alias ra="reload"
 alias reload="source ~/.aliases && echo \"$COL_GREEN ==> Aliases Reloaded... $COL_RESET \n \""
 alias run="npm run"
 alias tree="xtree"
+alias ff='find . -type f -name'
+alias fd='find . -type d -name'
 
 # Laravel / PHP Alisases
 alias art="php artisan"
@@ -35,6 +42,8 @@ alias db:reset="php artisan migrate:reset && php artisan migrate --seed"
 alias migrate="php artisan migrate"
 alias seed="php artisan:seed"
 alias phpunit="./vendor/bin/phpunit"
+
+alias phpspec='vendor/bin/phpspec'
 
 
 # requires installation of 'https://www.npmjs.com/package/npms-cli'

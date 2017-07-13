@@ -117,7 +117,10 @@ RUN apt-add-repository ppa:nginx/stable -y \
 COPY ./nginx/app.dev.conf /etc/nginx/sites-available/default
 COPY ./nginx/run.sh /etc/service/nginx/run
 RUN  chmod +x /etc/service/nginx/run
-VOLUME ["/var/www"]
+
+# Larave 项目目录
+VOLUME /var/www
+
 #
 #--------------------------------------------------------------------------
 # 安装 Composer:
@@ -132,7 +135,7 @@ RUN curl -s http://getcomposer.org/installer | php && \
 # 配置 Crontab
 #--------------------------------------------------------------------------
 #
-COPY ./crontab /etc/cron.d
+COPY ./crontab/ /etc/cron.d/
 RUN  chmod -R 644 /etc/cron.d
 
 #
@@ -146,19 +149,24 @@ RUN echo '' >> ~/.bashrc \
     && echo 'source /root/aliases.sh' >> ~/.bashrc \
 	&& echo '' >> ~/.bashrc \
 	&& sed -i 's/\r//' ~/aliases.sh \
-	&& sed -i 's/^#! \/bin\/sh/#! \/bin\/bash/' ~/aliases.sh \
-    && echo '' >> ~/.bashrc \
-    && echo 'alias art="php artisan"' >> ~/.bashrc
+	&& sed -i 's/^#! \/bin\/sh/#! \/bin\/bash/' ~/aliases.sh
 
 #
 #--------------------------------------------------------------------------
 # 安装 PHP REDIS
 #--------------------------------------------------------------------------
 #
+COPY ./redis/redis.conf /etc/redis/my.conf
 COPY ./redis/run.sh /etc/service/redis/run
 RUN apt-get install -y redis-server \
     && chmod +x /etc/service/redis/run
-VOLUME ["/data"]
+
+# Redis 数据目录
+VOLUME /var/lib/redis
+# Redis 日志目录
+VOLUME /var/log/redis
+# Redis PID 目录
+VOLUME /var/run/redis
 
 #
 #--------------------------------------------------------------------------
@@ -168,7 +176,9 @@ VOLUME ["/data"]
 COPY ./beanstalkd/run.sh /etc/service/beanstalkd/run
 RUN apt-get install -y beanstalkd \
     && chmod +x /etc/service/beanstalkd/run
-VOLUME ["/var/lib/beanstalkd/data"]
+
+# Beanstalkd 持久化数据目录，需要在 启动脚本中开启相应参数。开启持久化会影响性能
+VOLUME /var/lib/beanstalkd/data
 
 #
 #--------------------------------------------------------------------------
@@ -180,7 +190,11 @@ RUN apt-get install -y supervisor \
     && chmod +x /etc/service/supervisor/run \
     && mkdir -p /var/log/supervisor
 COPY ./supervisor/supervisor.conf /etc/supervisor/conf.d/
-VOLUME ["/var/log/supervisor"]
+
+# Supervisor 日志目录
+VOLUME /var/log/supervisor
+# Supervisor 配置目录
+VOLUME /etc/supervisor/conf.d
 
 #
 #--------------------------------------------------------------------------
@@ -188,7 +202,7 @@ VOLUME ["/var/log/supervisor"]
 #--------------------------------------------------------------------------
 #
 
-# 清除APT
+# 清理 APT
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 设置默认工作目录
@@ -196,3 +210,5 @@ WORKDIR /var/www
 
 # 暴露端口
 EXPOSE 80
+
+# ENTRYPOINT ["/bin/bash", "-c"]

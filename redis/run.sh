@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-redis-server
+exec /sbin/setuser redis redis-server /etc/redis/my.conf

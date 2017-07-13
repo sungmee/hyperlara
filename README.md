@@ -20,7 +20,7 @@
 docker run -d --name myapp --link mysql:db -p 80:80 -v /path/to/your/laravel:/var/www sungmee/hyperlara
 ```
 
-请自行将项目拷贝到 `/path/to/your/laravel`。或者进入容器后用 `composer` 新建项目。如下操作：
+请自行将项目拷贝到宿主机目录 `/path/to/your/laravel`。或者进入容器后用 `composer` 新建项目。如下操作：
 
 ```sh
 docker exec -it myapp /bin/bash

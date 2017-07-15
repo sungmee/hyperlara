@@ -4,6 +4,8 @@ MAINTAINER M.Chan <mo@lxooo.com>
 # 设置环境变量
 ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive
+# 兼容 Redis docker
+ENV REDIS_PORT 6379
 
 #
 #--------------------------------------------------------------------------
@@ -33,17 +35,30 @@ CMD ["/sbin/my_init"]
 RUN apt-get clean && apt-get update \
     && apt-get -yq install software-properties-common \
         curl git vim \
+        # wget \
         # make \
         # zip unzip \
+        # bzip2 \
+        # g++ \
+        # gcc \
+        # autoconf \
         # pkg-config \
-        # gcc make autoconf libc-dev \
+        # xz-utils \
+        # zlib1g-dev \
+        # libicu-dev \
+        # libc-dev \
         # libxml2-dev \
-        # zlib1g-dev libicu-dev g++ \
         # libcurl4-openssl-dev \
+        # libfreetype6-dev \
         # libedit-dev \
         # libssl-dev \
         # libxml2-dev \
-        # xz-utils \
+        # libjpeg-dev \
+        # libldap2-dev \
+        # libmcrypt-dev \
+        # libmemcached-dev \
+        # libpng12-dev \
+        # libpq-dev \
     && locale-gen en_US.UTF-8
 
 #
@@ -85,10 +100,10 @@ RUN add-apt-repository ppa:ondrej/php \
         # php7.1-xmlrpc \
         # php7.1-xsl \
         # php7.1-xdebug \
-        # php7.1-opcache \
-        # php7.1-memcached \
+        php7.1-opcache \
+        php7.1-memcached \
         php7.1-mysql \
-        # php-mongodb \
+        php7.1-mongodb \
         # php7.1-pgsql \
         # php7.1-sqlite \
         # php7.1-sqlite3 \
@@ -97,29 +112,49 @@ RUN add-apt-repository ppa:ondrej/php \
         # postgresql-client \
     && apt-get clean
 
-COPY ./php/laravel.ini /usr/local/etc/php/conf.d/
-COPY ./php/laravel.pool.conf /usr/local/etc/php-fpm.d/
+# 这几个 COPY 没有效果，所以改成下面的 sed
+# COPY ./php/laravel.ini /usr/local/etc/php/conf.d/
+# COPY ./php/laravel.pool.conf /usr/local/etc/php-fpm.d/
+# COPY ./php/opcache.ini /usr/local/etc/php/conf.d/
 COPY ./php/run.sh /etc/service/php-fpm/run
 RUN mkdir -p /run/php \
     && chmod +x /etc/service/php-fpm/run \
-    && usermod -u 1000 www-data
-
-#
-#--------------------------------------------------------------------------
-# 安装配置 Nginx
-#--------------------------------------------------------------------------
-#
-RUN apt-add-repository ppa:nginx/stable -y \
-    && apt-get update \
-    && apt-get -yq install --no-install-recommends nginx \
-    && echo 'daemon off;' >> /etc/nginx/nginx.conf \
-    && apt-get clean
-COPY ./nginx/app.dev.conf /etc/nginx/sites-available/default
-COPY ./nginx/run.sh /etc/service/nginx/run
-RUN  chmod +x /etc/service/nginx/run
-
-# Larave 项目目录
-VOLUME /var/www
+    && usermod -u 1000 www-data \
+    # php-fpm.conf
+    && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.1/fpm/php-fpm.conf \
+    # php.ini fpm
+    && sed -i -e "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.1/fpm/php.ini \
+    # php.ini cli
+    && sed -i -e "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.1/cli/php.ini \
+    # www.conf
+    # 如果监听 9000 端口，需要修改相应的 Nginx 配置文件
+    # && sed -i -e "s/listen = .*/listen = 0.0.0.0:9000/" /etc/php/7.1/fpm/pool.d/www.conf \
+    && sed -i -e "s/pm.max_children = 5/pm.max_children = 20/" /etc/php/7.1/fpm/pool.d/www.conf \
+    && sed -i -e "s/;catch_workers_output = yes/catch_workers_output = yes/" /etc/php/7.1/fpm/pool.d/www.conf \
+    # opcache.ini fpm
+    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/7.1/fpm/php.ini \
+    # opcache.ini cli
+    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/7.1/cli/php.ini
 
 #
 #--------------------------------------------------------------------------
@@ -153,35 +188,6 @@ RUN echo '' >> ~/.bashrc \
 
 #
 #--------------------------------------------------------------------------
-# 安装 PHP REDIS
-#--------------------------------------------------------------------------
-#
-COPY ./redis/redis.conf /etc/redis/my.conf
-COPY ./redis/run.sh /etc/service/redis/run
-RUN apt-get install -y redis-server \
-    && chmod +x /etc/service/redis/run
-
-# Redis 数据目录
-VOLUME /var/lib/redis
-# Redis 日志目录
-VOLUME /var/log/redis
-# Redis PID 目录
-VOLUME /var/run/redis
-
-#
-#--------------------------------------------------------------------------
-# 安装 Beanstalkd 高性能分布式内存队列系统
-#--------------------------------------------------------------------------
-#
-COPY ./beanstalkd/run.sh /etc/service/beanstalkd/run
-RUN apt-get install -y beanstalkd \
-    && chmod +x /etc/service/beanstalkd/run
-
-# Beanstalkd 持久化数据目录，需要在 启动脚本中开启相应参数。开启持久化会影响性能
-VOLUME /var/lib/beanstalkd/data
-
-#
-#--------------------------------------------------------------------------
 # 安装 Supervisor 守护进程
 #--------------------------------------------------------------------------
 #
@@ -198,6 +204,52 @@ VOLUME /etc/supervisor/conf.d
 
 #
 #--------------------------------------------------------------------------
+# 安装配置 Nginx
+#--------------------------------------------------------------------------
+#
+RUN apt-add-repository ppa:nginx/stable -y \
+    && apt-get update \
+    && apt-get -yq install --no-install-recommends nginx \
+    && echo 'daemon off;' >> /etc/nginx/nginx.conf \
+    && apt-get clean
+COPY ./nginx/app.dev.conf /etc/nginx/sites-available/default
+COPY ./nginx/run.sh /etc/service/nginx/run
+RUN  chmod +x /etc/service/nginx/run
+
+# Larave 项目目录
+VOLUME /var/www
+
+#
+#--------------------------------------------------------------------------
+# 安装 PHP REDIS
+#--------------------------------------------------------------------------
+#
+# COPY ./redis/redis.conf /etc/redis/my.conf
+# COPY ./redis/run.sh /etc/service/redis/run
+# RUN apt-get install -y redis-server \
+#     && chmod +x /etc/service/redis/run
+
+# # Redis 数据目录
+# VOLUME /var/lib/redis
+# # Redis 日志目录
+# VOLUME /var/log/redis
+# # Redis PID 目录
+# VOLUME /var/run/redis
+
+#
+#--------------------------------------------------------------------------
+# 安装 Beanstalkd 高性能分布式内存队列系统
+#--------------------------------------------------------------------------
+#
+# COPY ./beanstalkd/run.sh /etc/service/beanstalkd/run
+# RUN apt-get install -y beanstalkd \
+#     && chmod +x /etc/service/beanstalkd/run
+
+# # Beanstalkd 持久化数据目录，需要在 启动脚本中开启相应参数。开启持久化会影响性能
+# VOLUME /var/lib/beanstalkd/data
+
+#
+#--------------------------------------------------------------------------
 # 收尾
 #--------------------------------------------------------------------------
 #
@@ -207,6 +259,13 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 设置默认工作目录
 WORKDIR /var/www
+
+# 拷贝 Laravel 项目
+# ONBUILD COPY . /var/www
+# 安装依赖
+# ONBUILD RUN composer install --no-scripts
+# ONBUILD RUN chmod -R 777 storage
+# ONBUILD RUN chmod -R 777 bootstrap/cache
 
 # 暴露端口
 EXPOSE 80

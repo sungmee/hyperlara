@@ -10,7 +10,7 @@
 
 - Laravel 项目目录：`/var/www`
 
-可选安装 Supervisor（日志在 Laravel app 目录下的：`/storage/logs/worker.log`）、Redis、Beanstalkd。如果要安装它们，请参考 Dockerfile 中的注释，并去掉相应被注释的代码，然后重新 Build 镜像。可选安装时可能需要暴露的目录：
+可选安装 Supervisor（日志在 Laravel app 目录下的：`/storage/logs/worker.log`）、Redis、Beanstalkd。如果要安装它们，请参考 Dockerfile 中的注释，并去掉相应被注释的代码，然后重新 Build 镜像。可选安装时可能需要暴露的目录：
 
 - Supervisor 日志目录：`/var/log/supervisor`
 - Supervisor 配置目录：`/etc/supervisor/conf.d`
@@ -32,3 +32,16 @@
 然后
 
     composer create-project --prefer-dist laravel/laravel myapp
+
+## 以 HyperLara 作为母本构建镜像
+
+在您的 Laravel 项目根目录中编写 Dockerfile 文件，并将您的 Laravel 项目文件拷贝到该目录下，请确保根目录中存在 composer.json 文件，然后，就 Build 吧，脚本会自动帮您安装并配置相关依赖。如果您还没有 Laravel 项目，脚本会自动帮您初始化一个新的  Laravel 项目。
+
+Dockerfile 示例：
+
+```sh
+FROM sunemee/hyperapp
+MAINTAINER M.Chan <mo@lxooo.com>
+
+# 您的构建代码
+```

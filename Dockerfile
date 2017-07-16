@@ -270,8 +270,14 @@ WORKDIR /var/www
 # 拷贝 Laravel 项目
 ONBUILD COPY . /var/www
 # 安装依赖
-ONBUILD RUN composer install --no-scripts
-ONBUILD RUN chmod -R 777 storage bootstrap/cache
+ONBUILD RUN if [ -f "composer.json" ]; then \
+    composer install --no-scripts \
+    && chmod -R 777 storage bootstrap/cache \
+else \
+    cd .. \
+    && composer create-project --prefer-dist laravel/laravel www \
+    && chmod -R 777 storage bootstrap/cache \
+;fi
 
 # 暴露端口
 EXPOSE 80

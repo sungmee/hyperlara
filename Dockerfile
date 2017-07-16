@@ -13,6 +13,7 @@ ENV REDIS_PORT 6379
 #--------------------------------------------------------------------------
 #
 
+# # 如何使用 SSH，请参考 https://github.com/phusion/baseimage-docker/blob/master/README_ZH_cn_.md#login_ssh
 # # 生成 SSH KEYS，baseimage 不包含任何的 key，所以需要自己生成。
 # # 也可以注释掉这句命令，系统在启动过程中，会生成一个。
 # RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
@@ -85,13 +86,13 @@ RUN add-apt-repository ppa:ondrej/php \
         php7.1-gd \
         php7.1-exif \
         php7.1-tokenizer \
+        php7.1-gmp \
+        php7.1-imap \
         # php-pear \
         # php-tideways \
         # php7.1-odbc \
         # php7.1-ldap \
         # php7.1-apcu \
-        # php7.1-gmp \
-        # php7.1-imap \
         # php7.1-phpdbg \
         # php7.1-pspell \
         # php7.1-readline \
@@ -99,17 +100,14 @@ RUN add-apt-repository ppa:ondrej/php \
         # php7.1-tidy \
         # php7.1-xmlrpc \
         # php7.1-xsl \
-        # php7.1-xdebug \
+        php7.1-xdebug \
         php7.1-opcache \
         php7.1-memcached \
         php7.1-mysql \
         php7.1-mongodb \
-        # php7.1-pgsql \
+        php7.1-pgsql \
         # php7.1-sqlite \
         # php7.1-sqlite3 \
-        # sqlite3 \
-        # libsqlite3-dev \
-        # postgresql-client \
     && apt-get clean
 
 # 这几个 COPY 没有效果，所以改成下面的 sed
@@ -188,19 +186,27 @@ RUN echo '' >> ~/.bashrc \
 
 #
 #--------------------------------------------------------------------------
-# 安装 Supervisor 守护进程
+# 配置 Baseimage 的 Runit 服务监控和管理 Laravel 的队列
 #--------------------------------------------------------------------------
 #
-COPY ./supervisor/run.sh /etc/service/supervisor/run
-RUN apt-get install -y supervisor \
-    && chmod +x /etc/service/supervisor/run \
-    && mkdir -p /var/log/supervisor
-COPY ./supervisor/supervisor.conf /etc/supervisor/conf.d/
+COPY ./worker.sh /etc/service/worker/run
+RUN chmod +x /etc/service/worker/run
 
-# Supervisor 日志目录
-VOLUME /var/log/supervisor
-# Supervisor 配置目录
-VOLUME /etc/supervisor/conf.d
+#
+#--------------------------------------------------------------------------
+# 安装 Supervisor 守护进程 —— 如果使用 Supervisor 请注释上面 Runit！
+#--------------------------------------------------------------------------
+#
+# COPY ./supervisor/run.sh /etc/service/supervisor/run
+# RUN apt-get install -y supervisor \
+#     && chmod +x /etc/service/supervisor/run \
+#     && mkdir -p /var/log/supervisor
+# COPY ./supervisor/supervisor.conf /etc/supervisor/conf.d/
+
+# # Supervisor 日志目录
+# VOLUME /var/log/supervisor
+# # Supervisor 配置目录
+# VOLUME /etc/supervisor/conf.d
 
 #
 #--------------------------------------------------------------------------
@@ -260,14 +266,14 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 # 设置默认工作目录
 WORKDIR /var/www
 
+# 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝您的 Laravel 项目并执行依赖安装。
 # 拷贝 Laravel 项目
-# ONBUILD COPY . /var/www
+ONBUILD COPY . /var/www
 # 安装依赖
-# ONBUILD RUN composer install --no-scripts
-# ONBUILD RUN chmod -R 777 storage
-# ONBUILD RUN chmod -R 777 bootstrap/cache
+ONBUILD RUN composer install --no-scripts
+ONBUILD RUN chmod -R 777 storage bootstrap/cache
 
 # 暴露端口
 EXPOSE 80
 
-# ENTRYPOINT ["/bin/bash", "-c"]
+ENTRYPOINT ["/bin/bash", "-c"]

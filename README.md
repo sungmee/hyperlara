@@ -43,5 +43,8 @@ Dockerfile 示例：
 FROM sungmee/hyperlara
 MAINTAINER M.Chan <mo@lxooo.com>
 
-# 您的构建代码
+# 设置时区为中华人民共和国
+ENV TIMEZONE PRC
+
+# 您的构建代码 ...
 ```

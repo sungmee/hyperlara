@@ -1,9 +1,10 @@
 FROM phusion/baseimage:0.9.22
 MAINTAINER M.Chan <mo@lxooo.com>
-
 # 设置环境变量
 ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive
+ENV TIMEZONE UTC
+
 # 兼容 Redis docker
 ENV REDIS_PORT 6379
 
@@ -266,18 +267,15 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 # 设置默认工作目录
 WORKDIR /var/www
 
-# 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝您的 Laravel 项目并执行依赖安装。
+# 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝/新建您的 Laravel 项目并执行依赖安装。
 # 拷贝 Laravel 项目
+COPY ./onbuild.sh /root/onbuild.sh
+
 ONBUILD COPY . /var/www
-# 安装依赖
-ONBUILD RUN if [ -f "composer.json" ]; then \
-    composer install --no-scripts \
-    && chmod -R 777 storage bootstrap/cache \
-else \
-    cd .. \
-    && composer create-project --prefer-dist laravel/laravel www \
-    && chmod -R 777 storage bootstrap/cache \
-;fi
+ONBUILD RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
+    && echo $TIMEZONE > /etc/timezone \
+    && chmod +x /root/onbuild.sh \
+    && /root/onbuild.sh
 
 # 暴露端口
 EXPOSE 80

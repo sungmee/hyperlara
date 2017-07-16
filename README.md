@@ -40,7 +40,7 @@
 Dockerfile 示例：
 
 ```sh
-FROM sunemee/hyperapp
+FROM sungmee/hyperlara
 MAINTAINER M.Chan <mo@lxooo.com>
 
 # 您的构建代码

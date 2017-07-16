@@ -276,7 +276,7 @@ ONBUILD COPY . /var/www
 ONBUILD RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
     && echo $TIMEZONE > /etc/timezone \
     && chmod +x /root/onbuild.sh \
-    && /root/onbuild.sh
+    && sh /root/onbuild.sh
 
 # 暴露端口
 EXPOSE 80

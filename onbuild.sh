@@ -5,8 +5,9 @@ then
     composer install --no-scripts
     chmod -R 777 storage bootstrap/cache
 else
+    mkdir /var/www-backup
+    mv * .[^.]* /var/www-backup/
     cd ..
-    mv www www-backup
     composer create-project --prefer-dist laravel/laravel www
     mv www-backup www/www-backup
     cd www

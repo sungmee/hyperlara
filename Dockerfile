@@ -1,5 +1,6 @@
 FROM phusion/baseimage:0.9.22
 MAINTAINER M.Chan <mo@lxooo.com>
+
 # 设置环境变量
 ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive

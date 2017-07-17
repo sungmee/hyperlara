@@ -268,15 +268,15 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 # 设置默认工作目录
 WORKDIR /var/www
 
-# 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝/新建您的 Laravel 项目并执行依赖安装。
-# 拷贝 Laravel 项目
-COPY ./onbuild.sh /root/onbuild.sh
+# Laravel 依赖安装或项目新建脚本，在 shell 中执行 lara-setup，
+# 脚本将自动配置 Laravel 项目到 /var/www 目录中
+COPY ./onbuild.sh /usr/local/bin/lara-setup
+RUN chmod +x /usr/local/bin/lara-setup
 
+# 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝您的 Laravel 项目并执行依赖安装。
 ONBUILD COPY . /var/www
-ONBUILD RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
-    && echo $TIMEZONE > /etc/timezone \
-    && chmod +x /root/onbuild.sh \
-    && sh /root/onbuild.sh
+ONBUILD RUN cd /var/www && composer install --no-scripts
+ONBUILD RUN chmod -R 777 storage bootstrap/cache
 
 # 暴露端口
 EXPOSE 80

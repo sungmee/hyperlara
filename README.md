@@ -35,7 +35,9 @@
 
 ## 以 HyperLara 作为母本构建镜像
 
-在您的 Laravel 项目根目录中编写 Dockerfile 文件，并将您的 Laravel 项目文件拷贝到该目录下，请确保根目录中存在 composer.json 文件，然后，就 Build 吧，脚本会自动帮您安装并配置相关依赖。如果您还没有 Laravel 项目，脚本会自动帮您初始化一个新的  Laravel 项目。
+在您的 Laravel 项目根目录中编写 Dockerfile 文件，并将您的 Laravel 项目文件拷贝到该目录下，请确保根目录中存在 composer.json 文件，然后，就 Build 吧，脚本会自动帮您安装并配置相关依赖。如果您还没有 Laravel 项目，脚本会自动帮您初始化一个新的 Laravel 项目。
+
+PS: 如果新建项目没有成功，请进入容器以后，运行：`lara-setup`。
 
 Dockerfile 示例：
 
@@ -45,6 +47,8 @@ MAINTAINER M.Chan <mo@lxooo.com>
 
 # 设置时区为中华人民共和国
 ENV TIMEZONE PRC
+RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
+    && echo $TIMEZONE > /etc/timezone
 
 # 您的构建代码 ...
 ```

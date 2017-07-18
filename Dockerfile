@@ -193,22 +193,6 @@ RUN chmod +x /etc/service/worker/run
 
 #
 #--------------------------------------------------------------------------
-# 安装 Supervisor 守护进程 —— 如果使用 Supervisor 请注释上面 Runit！
-#--------------------------------------------------------------------------
-#
-# COPY ./build/supervisor.sh /etc/service/supervisor/run
-# RUN apt-get install -y supervisor \
-#     && chmod +x /etc/service/supervisor/run \
-#     && mkdir -p /var/log/supervisor
-# COPY ./build/supervisor.conf /etc/supervisor/conf.d/
-
-# # Supervisor 日志目录
-# VOLUME /var/log/supervisor
-# # Supervisor 配置目录
-# VOLUME /etc/supervisor/conf.d
-
-#
-#--------------------------------------------------------------------------
 # 安装配置 Nginx
 #--------------------------------------------------------------------------
 #
@@ -223,35 +207,6 @@ RUN  chmod +x /etc/service/nginx/run
 
 # Larave 项目目录
 VOLUME /var/www
-
-#
-#--------------------------------------------------------------------------
-# 安装 PHP REDIS
-#--------------------------------------------------------------------------
-#
-# COPY ./build/redis.conf /etc/redis/my.conf
-# COPY ./build/redis.sh /etc/service/redis/run
-# RUN apt-get install -y redis-server \
-#     && chmod +x /etc/service/redis/run
-
-# # Redis 数据目录
-# VOLUME /var/lib/redis
-# # Redis 日志目录
-# VOLUME /var/log/redis
-# # Redis PID 目录
-# VOLUME /var/run/redis
-
-#
-#--------------------------------------------------------------------------
-# 安装 Beanstalkd 高性能分布式内存队列系统
-#--------------------------------------------------------------------------
-#
-# COPY ./build/beanstalkd.sh /etc/service/beanstalkd/run
-# RUN apt-get install -y beanstalkd \
-#     && chmod +x /etc/service/beanstalkd/run
-
-# # Beanstalkd 持久化数据目录，需要在 启动脚本中开启相应参数。开启持久化会影响性能
-# VOLUME /var/lib/beanstalkd/data
 
 #
 #--------------------------------------------------------------------------

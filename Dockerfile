@@ -120,11 +120,11 @@ RUN mkdir -p /run/php \
     # php-fpm.conf
     && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.1/fpm/php-fpm.conf \
     # php.ini fpm
-    && sed -i -e "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.1/fpm/php.ini \
     && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.1/fpm/php.ini \
     && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.1/fpm/php.ini \
     # php.ini cli
-    && sed -i -e "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.1/cli/php.ini \
     && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.1/cli/php.ini \
     && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.1/cli/php.ini \
     # www.conf
@@ -229,29 +229,29 @@ VOLUME /var/www
 # 安装 PHP REDIS
 #--------------------------------------------------------------------------
 #
-# COPY ./build/redis.conf /etc/redis/my.conf
-# COPY ./build/redis.sh /etc/service/redis/run
-# RUN apt-get install -y redis-server \
-#     && chmod +x /etc/service/redis/run
+COPY ./build/redis.conf /etc/redis/my.conf
+COPY ./build/redis.sh /etc/service/redis/run
+RUN apt-get install -y redis-server \
+    && chmod +x /etc/service/redis/run
 
-# # Redis 数据目录
-# VOLUME /var/lib/redis
-# # Redis 日志目录
-# VOLUME /var/log/redis
-# # Redis PID 目录
-# VOLUME /var/run/redis
+# Redis 数据目录
+VOLUME /var/lib/redis
+# Redis 日志目录
+VOLUME /var/log/redis
+# Redis PID 目录
+VOLUME /var/run/redis
 
 #
 #--------------------------------------------------------------------------
 # 安装 Beanstalkd 高性能分布式内存队列系统
 #--------------------------------------------------------------------------
 #
-# COPY ./build/beanstalkd.sh /etc/service/beanstalkd/run
-# RUN apt-get install -y beanstalkd \
-#     && chmod +x /etc/service/beanstalkd/run
+COPY ./build/beanstalkd.sh /etc/service/beanstalkd/run
+RUN apt-get install -y beanstalkd \
+    && chmod +x /etc/service/beanstalkd/run
 
-# # Beanstalkd 持久化数据目录，需要在 启动脚本中开启相应参数。开启持久化会影响性能
-# VOLUME /var/lib/beanstalkd/data
+# Beanstalkd 持久化数据目录，需要在 启动脚本中开启相应参数。开启持久化会影响性能
+VOLUME /var/lib/beanstalkd/data
 
 #
 #--------------------------------------------------------------------------

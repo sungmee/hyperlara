@@ -251,7 +251,7 @@ WORKDIR /var/www
 
 # Laravel 依赖安装或项目新建脚本，在 shell 中执行 lara-setup，
 # 脚本将自动配置 Laravel 项目到 /var/www 目录中
-COPY ./lara-setup.sh /usr/local/bin/lara-setup
+COPY ./build/lara-setup.sh /usr/local/bin/lara-setup
 RUN chmod +x /usr/local/bin/lara-setup
 
 # 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝您的 Laravel 项目并执行依赖安装。

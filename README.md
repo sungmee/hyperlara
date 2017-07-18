@@ -25,7 +25,7 @@ Supervisor 日志在 Laravel app 目录下的：`/storage/logs/worker.log`。
 
 ## 运行容器
 
-    docker run -d --name myapp --link mysql:db --link redis:redis --link beanstalkd:beanstalkd -p 80:80 -v /path/to/your/laravel:/var/www sungmee/hyperlara
+    docker run -d --name myapp --link mysql:db -p 80:80 -v /path/to/your/laravel:/var/www sungmee/hyperlara
 
 请将项目拷贝到宿主机目录 `/path/to/your/laravel`。如果您需要通过 `composer.json` 文件初始化项目（须先将其拷贝入您宿主机的项目目录），或者新建 Laravel 项目，请在宿主机中运行以下命令：
 

@@ -11,16 +11,16 @@ ENV REDIS_PORT 6379
 
 #
 #--------------------------------------------------------------------------
-# SSH: 默认是禁用的
+# SSH: 默认禁用
 #--------------------------------------------------------------------------
 #
 
-# # 如何使用 SSH，请参考 https://github.com/phusion/baseimage-docker/blob/master/README_ZH_cn_.md#login_ssh
-# # 生成 SSH KEYS，baseimage 不包含任何的 key，所以需要自己生成。
-# # 也可以注释掉这句命令，系统在启动过程中，会生成一个。
+# 如何使用 SSH，请参考 https://github.com/phusion/baseimage-docker/blob/master/README_ZH_cn_.md#login_ssh
+# 生成 SSH KEYS，baseimage 不包含任何的 key，所以需要自己生成。
+# 也可以注释掉这句命令，系统在启动过程中，会生成一个。
 # RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
 
-# 禁用SSH
+# 禁用 SSH
 RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
 
 #
@@ -112,11 +112,8 @@ RUN add-apt-repository ppa:ondrej/php \
         # php7.1-sqlite3 \
     && apt-get clean
 
-# 这几个 COPY 没有效果，所以改成下面的 sed
-# COPY ./php/laravel.ini /usr/local/etc/php/conf.d/
-# COPY ./php/laravel.pool.conf /usr/local/etc/php-fpm.d/
-# COPY ./php/opcache.ini /usr/local/etc/php/conf.d/
-COPY ./php/run.sh /etc/service/php-fpm/run
+# 配置 PHP 以及 扩展
+COPY ./build/php.sh /etc/service/php-fpm/run
 RUN mkdir -p /run/php \
     && chmod +x /etc/service/php-fpm/run \
     && usermod -u 1000 www-data \
@@ -170,7 +167,7 @@ RUN curl -s http://getcomposer.org/installer | php && \
 # 配置 Crontab
 #--------------------------------------------------------------------------
 #
-COPY ./crontab/ /etc/cron.d/
+COPY ./build/crontab /etc/cron.d/www-data
 RUN  chmod -R 644 /etc/cron.d
 
 #
@@ -178,7 +175,7 @@ RUN  chmod -R 644 /etc/cron.d
 # 配置命令别名
 #--------------------------------------------------------------------------
 #
-COPY ./aliases.sh /root/aliases.sh
+COPY ./build/aliases.sh /root/aliases.sh
 RUN echo '' >> ~/.bashrc \
     && echo '# Load Custom Aliases' >> ~/.bashrc \
     && echo 'source /root/aliases.sh' >> ~/.bashrc \
@@ -191,7 +188,7 @@ RUN echo '' >> ~/.bashrc \
 # 配置 Baseimage 的 Runit 服务监控和管理 Laravel 的队列
 #--------------------------------------------------------------------------
 #
-COPY ./worker.sh /etc/service/worker/run
+COPY ./build/worker.sh /etc/service/worker/run
 RUN chmod +x /etc/service/worker/run
 
 #
@@ -199,11 +196,11 @@ RUN chmod +x /etc/service/worker/run
 # 安装 Supervisor 守护进程 —— 如果使用 Supervisor 请注释上面 Runit！
 #--------------------------------------------------------------------------
 #
-# COPY ./supervisor/run.sh /etc/service/supervisor/run
+# COPY ./build/supervisor.sh /etc/service/supervisor/run
 # RUN apt-get install -y supervisor \
 #     && chmod +x /etc/service/supervisor/run \
 #     && mkdir -p /var/log/supervisor
-# COPY ./supervisor/supervisor.conf /etc/supervisor/conf.d/
+# COPY ./build/supervisor.conf /etc/supervisor/conf.d/
 
 # # Supervisor 日志目录
 # VOLUME /var/log/supervisor
@@ -220,8 +217,8 @@ RUN apt-add-repository ppa:nginx/stable -y \
     && apt-get -yq install --no-install-recommends nginx \
     && echo 'daemon off;' >> /etc/nginx/nginx.conf \
     && apt-get clean
-COPY ./nginx/app.dev.conf /etc/nginx/sites-available/default
-COPY ./nginx/run.sh /etc/service/nginx/run
+COPY ./build/app.dev.conf /etc/nginx/sites-available/default
+COPY ./build/nginx.sh /etc/service/nginx/run
 RUN  chmod +x /etc/service/nginx/run
 
 # Larave 项目目录
@@ -232,8 +229,8 @@ VOLUME /var/www
 # 安装 PHP REDIS
 #--------------------------------------------------------------------------
 #
-# COPY ./redis/redis.conf /etc/redis/my.conf
-# COPY ./redis/run.sh /etc/service/redis/run
+# COPY ./build/redis.conf /etc/redis/my.conf
+# COPY ./build/redis.sh /etc/service/redis/run
 # RUN apt-get install -y redis-server \
 #     && chmod +x /etc/service/redis/run
 
@@ -249,7 +246,7 @@ VOLUME /var/www
 # 安装 Beanstalkd 高性能分布式内存队列系统
 #--------------------------------------------------------------------------
 #
-# COPY ./beanstalkd/run.sh /etc/service/beanstalkd/run
+# COPY ./build/beanstalkd.sh /etc/service/beanstalkd/run
 # RUN apt-get install -y beanstalkd \
 #     && chmod +x /etc/service/beanstalkd/run
 
@@ -270,7 +267,7 @@ WORKDIR /var/www
 
 # Laravel 依赖安装或项目新建脚本，在 shell 中执行 lara-setup，
 # 脚本将自动配置 Laravel 项目到 /var/www 目录中
-COPY ./onbuild.sh /usr/local/bin/lara-setup
+COPY ./lara-setup.sh /usr/local/bin/lara-setup
 RUN chmod +x /usr/local/bin/lara-setup
 
 # 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝您的 Laravel 项目并执行依赖安装。

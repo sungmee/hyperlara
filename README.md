@@ -1,6 +1,6 @@
 # HyperLara
 
-基于 phusion/baseimage 构建的 Laravel Docker 镜像。内置 PHP7.1、Nginx、Composer、Supervisor。
+基于 phusion/baseimage 构建的 Laravel Docker 镜像。内置 PHP7.1、Nginx、Composer、Supervisor、Redis、Beanstalkd。
 
 ## 分支说明
 

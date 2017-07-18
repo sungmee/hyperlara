@@ -120,11 +120,11 @@ RUN mkdir -p /run/php \
     # php-fpm.conf
     && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.1/fpm/php-fpm.conf \
     # php.ini fpm
-    && sed -i -e "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.1/fpm/php.ini \
     && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.1/fpm/php.ini \
     && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.1/fpm/php.ini \
     # php.ini cli
-    && sed -i -e "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.1/cli/php.ini \
     && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.1/cli/php.ini \
     && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.1/cli/php.ini \
     # www.conf

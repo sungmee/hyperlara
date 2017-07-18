@@ -4,7 +4,7 @@
 
 ## 分支说明
 
-- master：最精简高效配置，使用系统的 Runit 处理队列。
+- master：最精简高效配置，使用系统自带的 Runit 处理队列。
 - master-spv：使用 Supervisor 代替 master 分支的 Runit 处理队列。
 - allinone：该分支在 master 分支的基础上，内置 Redis、Beanstalkd。
 - allinone-spv：该分支在 master-spv 分支的基础上，内置 Redis、Beanstalkd。

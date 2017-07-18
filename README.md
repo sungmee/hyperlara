@@ -29,17 +29,13 @@ Supervisor 的日志在 Laravel app 目录下的 `/storage/logs/worker.log` 中�
 
 ## 运行容器
 
-    docker run -d --name myapp --link mysql:db --link redis:redis -p 80:80 -v /path/to/your/laravel:/var/www sungmee/hyperlara
+    docker run -d --name myapp --link mysql:db -p 80:80 -v /path/to/your/laravel:/var/www sungmee/hyperlara
 
-如果你用独立容器运行 Beanstalkd，还要加上 `--link beanstalkd:beanstalkd` 到上面命令里。
+请将项目拷贝到宿主机目录 `/path/to/your/laravel`。如果您需要通过 `composer.json` 文件初始化项目（须先将其拷贝入您宿主机的项目目录），或者新建 Laravel 项目，请在宿主机中运行以下命令：
 
-请自行将项目拷贝到宿主机目录 `/path/to/your/laravel`。或者进入容器后用 `composer` 新建项目。如下操作：
+    docker exec myapp lara-setup
 
-    docker exec -it myapp /bin/bash
-
-然后
-
-    composer create-project --prefer-dist laravel/laravel myapp
+稍做等候，脚本将自动帮您安装好项目依赖，或者初始化一个新的 Laravel 项目。
 
 ## 以 HyperLara 作为母本构建镜像
 

@@ -11,7 +11,7 @@
 
 ## 镜像说明
 
-默认开启 Laravel 列队：`high,low,default,emails`，列队日志可直接在 HyperApp 查看，或查看容器运行日志。列队监控与管理采用 Baseimage-docker 的 Runit 模块，系统级别，纯净无添加，并且服务崩溃之后，支持后台进程自动重启。如果您偏爱 Supervisor，请参考 Dockerfile 中相关注释，重新 Build 镜像即可。
+默认开启 Laravel 列队：`high,low,default,emails`，列队日志可直接在 HyperApp 查看，或查看容器运行日志。列队监控与管理采用 Baseimage-docker 的 Runit 模块，系统级别，纯净无添加，并且服务崩溃之后，支持后台进程自动重启。
 
 默认加入 Laravel Crontab 定时任务。
 
@@ -23,7 +23,7 @@ Laravel 项目目录：`/var/www`
 
 请将项目拷贝到宿主机目录 `/path/to/your/laravel`。如果您需要通过 `composer.json` 文件初始化项目（须先将其拷贝入您宿主机的项目目录），或者新建 Laravel 项目，请在宿主机中运行以下命令：
 
-    docker exec myapp lara-setup
+    docker exec myapp lara-setup
 
 稍做等候，脚本将自动帮您安装好项目依赖，或者初始化一个新的 Laravel 项目。
 

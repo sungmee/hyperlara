@@ -193,22 +193,6 @@ RUN chmod +x /etc/service/worker/run
 
 #
 #--------------------------------------------------------------------------
-# 安装 Supervisor 守护进程 —— 如果使用 Supervisor 请注释上面 Runit！
-#--------------------------------------------------------------------------
-#
-# COPY ./build/supervisor.sh /etc/service/supervisor/run
-# RUN apt-get install -y supervisor \
-#     && chmod +x /etc/service/supervisor/run \
-#     && mkdir -p /var/log/supervisor
-# COPY ./build/supervisor.conf /etc/supervisor/conf.d/
-
-# # Supervisor 日志目录
-# VOLUME /var/log/supervisor
-# # Supervisor 配置目录
-# VOLUME /etc/supervisor/conf.d
-
-#
-#--------------------------------------------------------------------------
 # 安装配置 Nginx
 #--------------------------------------------------------------------------
 #

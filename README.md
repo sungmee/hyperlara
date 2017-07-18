@@ -11,7 +11,7 @@
 
 ## 镜像说明
 
-默认开启 Laravel 列队：`high,low,default,emails`，列队日志可直接在 HyperApp 查看，或查看容器运行日志。列队监控与管理采用 Supervisor ，服务崩溃之后，支持后台进程自动重启。
+默认开启 Laravel 列队：`high,low,default,emails`，列队日志可直接在 HyperApp 查看，或查看容器运行日志。列队监控与管理采用 Supervisor，服务崩溃之后，支持后台进程自动重启。
 
 默认加入 Laravel Crontab 定时任务。
 
@@ -20,8 +20,12 @@
 - Laravel 项目目录：`/var/www`
 - Supervisor 日志目录：`/var/log/supervisor`
 - Supervisor 配置目录：`/etc/supervisor/conf.d`
+- Redis 数据目录 `/var/lib/redis`
+- Redis 日志目录 `/var/log/redis`
+- Redis PID 目录 `/var/run/redis`
+- Beanstalkd 数据目录：`/var/lib/beanstalkd/data`
 
-Supervisor 日志在 Laravel app 目录下的：`/storage/logs/worker.log`。
+Supervisor 的日志在 Laravel app 目录下的 `/storage/logs/worker.log` 中。
 
 ## 运行容器
 

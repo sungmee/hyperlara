@@ -4,7 +4,7 @@
 
 ## 分支说明
 
-- master：最精简高效配置，使用 Runit 处理队列。
+- master：最精简高效配置，使用系统自带的 Runit 处理队列。
 - master-spv：使用 Supervisor 代替 master 分支的 Runit 处理队列。
 - allinone：该分支在 master 分支的基础上，内置 Redis、Beanstalkd。
 - allinone-spv：该分支在 master-spv 分支的基础上，内置 Redis、Beanstalkd。
@@ -16,29 +16,20 @@
 项目目录：
 
 - Laravel 项目目录：`/var/www`
-
-可选安装 Supervisor（日志在 Laravel app 目录下的：`/storage/logs/worker.log`）、Redis、Beanstalkd。如果要安装它们，请参考 Dockerfile 中的注释，并去掉相应被注释的代码，然后重新 Build 镜像。可选安装时可能需要暴露的目录：
-
 - Supervisor 日志目录：`/var/log/supervisor`
 - Supervisor 配置目录：`/etc/supervisor/conf.d`
-- Redis 数据目录 `/var/lib/redis`
-- Redis 日志目录 `/var/log/redis`
-- Redis PID 目录 `/var/run/redis`
-- Beanstalkd 数据目录：`/var/lib/beanstalkd/data`
+
+Supervisor 的日志在 Laravel app 目录下的 `/storage/logs/worker.log` 中。
 
 ## 运行容器
 
-    docker run -d --name myapp --link mysql:db --link redis:redis -p 80:80 -v /path/to/your/laravel:/var/www sungmee/hyperlara
+    docker run -d --name myapp --link mysql:db --link redis:redis --link beanstalkd:beanstalkd -p 80:80 -v /path/to/your/laravel:/var/www sungmee/hyperlara
 
-如果你用独立容器运行 Beanstalkd，还要加上 `--link beanstalkd:beanstalkd` 到上面命令里。
+请将项目拷贝到宿主机目录 `/path/to/your/laravel`。如果您需要通过 `composer.json` 文件初始化项目（须先将其拷贝入您宿主机的项目目录），或者新建 Laravel 项目，请在宿主机中运行以下命令：
 
-请自行将项目拷贝到宿主机目录 `/path/to/your/laravel`。或者进入容器后用 `composer` 新建项目。如下操作：
+    docker exec myapp lara-setup
 
-    docker exec -it myapp /bin/bash
-
-然后
-
-    composer create-project --prefer-dist laravel/laravel myapp
+稍做等候，脚本将自动帮您安装好项目依赖，或者初始化一个新的 Laravel 项目。
 
 ## 以 HyperLara 作为母本构建镜像
 

@@ -90,6 +90,7 @@ RUN add-apt-repository ppa:ondrej/php \
         php7.1-tokenizer \
         php7.1-gmp \
         php7.1-imap \
+        php7.1-readline \
         # php-pear \
         # php-tideways \
         # php7.1-odbc \
@@ -97,7 +98,6 @@ RUN add-apt-repository ppa:ondrej/php \
         # php7.1-apcu \
         # php7.1-phpdbg \
         # php7.1-pspell \
-        # php7.1-readline \
         # php7.1-recode \
         # php7.1-tidy \
         # php7.1-xmlrpc \

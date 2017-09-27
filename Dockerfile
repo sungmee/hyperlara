@@ -106,8 +106,10 @@ RUN add-apt-repository ppa:ondrej/php \
         php7.1-opcache \
         php7.1-memcached \
         php7.1-mysql \
+        php7.1-pdo-mysql \
         php7.1-mongodb \
         php7.1-pgsql \
+        php7.1-pdo-pgsql \
         # php7.1-sqlite \
         # php7.1-sqlite3 \
     && apt-get clean

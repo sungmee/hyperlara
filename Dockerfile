@@ -125,10 +125,12 @@ RUN mkdir -p /run/php \
     && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.1/fpm/php.ini \
     && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.1/fpm/php.ini \
     && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.1/fpm/php.ini \
+    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.1/fpm/php.ini \
     # php.ini cli
     && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.1/cli/php.ini \
     && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.1/cli/php.ini \
     && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.1/cli/php.ini \
+    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.1/cli/php.ini \
     # www.conf
     # 如果监听 9000 端口，需要修改相应的 Nginx 配置文件
     # && sed -i -e "s/listen = .*/listen = 0.0.0.0:9000/" /etc/php/7.1/fpm/pool.d/www.conf \

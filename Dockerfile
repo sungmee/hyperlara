@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.22
+FROM phusion/baseimage:0.10.0
 MAINTAINER M.Chan <mo@lxooo.com>
 
 # 设置环境变量
@@ -91,6 +91,7 @@ RUN add-apt-repository ppa:ondrej/php \
         php7.1-gmp \
         php7.1-imap \
         php7.1-readline \
+        php7.1-ctype \
         # php-pear \
         # php-tideways \
         # php7.1-odbc \

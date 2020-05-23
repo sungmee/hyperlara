@@ -41,7 +41,7 @@ RUN apt-get clean && apt-get update \
         curl git vim \
         # wget \
         # make \
-        # zip unzip \
+        zip unzip \
         # bzip2 \
         # g++ \
         # gcc \

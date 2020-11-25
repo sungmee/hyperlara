@@ -1,4 +1,4 @@
-FROM phusion/baseimage
+FROM phusion/baseimage:master
 
 LABEL maintainer="M.Chan <mo@lxooo.com>"
 

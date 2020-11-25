@@ -108,6 +108,7 @@ RUN add-apt-repository ppa:ondrej/php \
         php7.3-xdebug \
         php7.3-opcache \
         php7.3-memcached \
+        php7.3-redis \
         php7.3-mysql \
         php7.3-pdo-mysql \
         php7.3-mongodb \

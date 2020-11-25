@@ -82,7 +82,7 @@ RUN add-apt-repository ppa:ondrej/php \
         php7.3-xml \
         php7.3-bcmath \
         php7.3-mbstring \
-        php-mcrypt \
+        php7.1-mcrypt \
         php7.3-dev \
         php7.3-zip \
         php7.3-intl \

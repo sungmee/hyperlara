@@ -85,6 +85,7 @@ RUN add-apt-repository ppa:ondrej/php \
         php7.1-mcrypt \
         php7.3-dev \
         php7.3-zip \
+        php7.3-bz2 \
         php7.3-intl \
         php7.3-soap \
         php7.3-gd \

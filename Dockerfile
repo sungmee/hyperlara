@@ -115,8 +115,8 @@ RUN add-apt-repository ppa:ondrej/php \
         php7.3-mongodb \
         php7.3-pgsql \
         php7.3-pdo-pgsql \
-        # php7.3-sqlite \
-        # php7.3-sqlite3 \
+        php7.3-sqlite \
+        php7.3-sqlite3 \
     && apt-get clean
 
 # 配置 PHP 以及 扩展

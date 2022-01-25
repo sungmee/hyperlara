@@ -74,49 +74,49 @@ RUN add-apt-repository ppa:ondrej/php \
     && apt-get update \
     && apt-get -yq install --no-install-recommends \
         # 暂无 7.3: mcrypt
-        php7.3-cli \
-        php7.3-fpm \
-        php7.3-common \
-        php7.3-curl \
-        php7.3-json \
-        php7.3-xml \
-        php7.3-bcmath \
-        php7.3-mbstring \
+        php7.4-cli \
+        php7.4-fpm \
+        php7.4-common \
+        php7.4-curl \
+        php7.4-json \
+        php7.4-xml \
+        php7.4-bcmath \
+        php7.4-mbstring \
         php7.1-mcrypt \
-        php7.3-dev \
-        php7.3-zip \
-        php7.3-bz2 \
-        php7.3-intl \
-        php7.3-soap \
-        php7.3-gd \
-        php7.3-exif \
-        php7.3-tokenizer \
-        php7.3-gmp \
-        php7.3-imap \
-        php7.3-readline \
-        php7.3-ctype \
+        php7.4-dev \
+        php7.4-zip \
+        php7.4-bz2 \
+        php7.4-intl \
+        php7.4-soap \
+        php7.4-gd \
+        php7.4-exif \
+        php7.4-tokenizer \
+        php7.4-gmp \
+        php7.4-imap \
+        php7.4-readline \
+        php7.4-ctype \
         php-pear \
         # php-tideways \
-        # php7.3-odbc \
-        # php7.3-ldap \
-        # php7.3-apcu \
-        # php7.3-phpdbg \
-        # php7.3-pspell \
-        # php7.3-recode \
-        # php7.3-tidy \
-        # php7.3-xmlrpc \
-        # php7.3-xsl \
-        php7.3-xdebug \
-        php7.3-opcache \
-        php7.3-memcached \
-        php7.3-redis \
-        php7.3-mysql \
-        php7.3-pdo-mysql \
-        php7.3-mongodb \
-        php7.3-pgsql \
-        php7.3-pdo-pgsql \
-        php7.3-sqlite \
-        php7.3-sqlite3 \
+        # php7.4-odbc \
+        # php7.4-ldap \
+        # php7.4-apcu \
+        # php7.4-phpdbg \
+        # php7.4-pspell \
+        # php7.4-recode \
+        # php7.4-tidy \
+        # php7.4-xmlrpc \
+        # php7.4-xsl \
+        php7.4-xdebug \
+        php7.4-opcache \
+        php7.4-memcached \
+        php7.4-redis \
+        php7.4-mysql \
+        php7.4-pdo-mysql \
+        php7.4-mongodb \
+        php7.4-pgsql \
+        php7.4-pdo-pgsql \
+        php7.4-sqlite \
+        php7.4-sqlite3 \
     && apt-get clean
 
 # 配置 PHP 以及 扩展

@@ -73,7 +73,7 @@ RUN apt-get clean && apt-get update \
 RUN add-apt-repository ppa:ondrej/php \
     && apt-get update \
     && apt-get -yq install --no-install-recommends \
-        # 暂无 7.3: mcrypt
+        # 暂无 7.4: mcrypt
         php7.4-cli \
         php7.4-fpm \
         php7.4-common \
@@ -125,42 +125,42 @@ RUN mkdir -p /run/php \
     && chmod +x /etc/service/php-fpm/run \
     && usermod -u 1000 www-data \
     # php-fpm.conf
-    && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.3/fpm/php-fpm.conf \
+    && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.4/fpm/php-fpm.conf \
     # php.ini fpm
-    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.3/fpm/php.ini \
+    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.4/fpm/php.ini \
     # php.ini cli
-    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.3/cli/php.ini \
+    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.4/cli/php.ini \
     # www.conf
     # 如果监听 9000 端口，需要修改相应的 Nginx 配置文件
-    # && sed -i -e "s/listen = .*/listen = 0.0.0.0:9000/" /etc/php/7.3/fpm/pool.d/www.conf \
-    && sed -i -e "s/pm.max_children = 5/pm.max_children = 20/" /etc/php/7.3/fpm/pool.d/www.conf \
-    && sed -i -e "s/;catch_workers_output = yes/catch_workers_output = yes/" /etc/php/7.3/fpm/pool.d/www.conf \
+    # && sed -i -e "s/listen = .*/listen = 0.0.0.0:9000/" /etc/php/7.4/fpm/pool.d/www.conf \
+    && sed -i -e "s/pm.max_children = 5/pm.max_children = 20/" /etc/php/7.4/fpm/pool.d/www.conf \
+    && sed -i -e "s/;catch_workers_output = yes/catch_workers_output = yes/" /etc/php/7.4/fpm/pool.d/www.conf \
     # opcache.ini fpm
-    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/7.3/fpm/php.ini \
-    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/7.3/fpm/php.ini \
+    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/7.4/fpm/php.ini \
+    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/7.4/fpm/php.ini \
     # opcache.ini cli
-    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/7.3/cli/php.ini \
-    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/7.3/cli/php.ini
+    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/7.4/cli/php.ini \
+    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/7.4/cli/php.ini
 
 #
 #--------------------------------------------------------------------------

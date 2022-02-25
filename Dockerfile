@@ -6,7 +6,7 @@ LABEL maintainer="M.Chan <mo@lxooo.com>"
 ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive
 ENV TIMEZONE UTC
-
+ENV PHP_VERSION 8.1
 # 兼容 Redis docker
 ENV REDIS_PORT 6379
 
@@ -15,7 +15,6 @@ ENV REDIS_PORT 6379
 # SSH: 默认禁用
 #--------------------------------------------------------------------------
 #
-
 # 如何使用 SSH，请参考 https://github.com/phusion/baseimage-docker/blob/master/README_ZH_cn_.md#login_ssh
 # 生成 SSH KEYS，baseimage 不包含任何的 key，所以需要自己生成。
 # 也可以注释掉这句命令，系统在启动过程中，会生成一个。
@@ -33,134 +32,58 @@ CMD ["/sbin/my_init"]
 
 #
 #--------------------------------------------------------------------------
-# 安装基础软体
-#--------------------------------------------------------------------------
-#
-RUN apt-get clean && apt-get update \
-    && apt-get -yq install software-properties-common \
-        curl git vim \
-        # wget \
-        # make \
-        zip unzip \
-        # bzip2 \
-        # g++ \
-        # gcc \
-        # autoconf \
-        # pkg-config \
-        # xz-utils \
-        # zlib1g-dev \
-        # libicu-dev \
-        # libc-dev \
-        # libxml2-dev \
-        # libcurl4-openssl-dev \
-        # libfreetype6-dev \
-        # libedit-dev \
-        # libssl-dev \
-        # libxml2-dev \
-        # libjpeg-dev \
-        # libldap2-dev \
-        # libmcrypt-dev \
-        # libmemcached-dev \
-        # libpng12-dev \
-        # libpq-dev \
-    && locale-gen en_US.UTF-8
-
-#
-#--------------------------------------------------------------------------
 # 安装配置 PHP、PHP 扩展和其它软体
 #--------------------------------------------------------------------------
 #
-RUN add-apt-repository ppa:ondrej/php \
-    && apt-get update \
+# RUN locale-gen en_US.UTF-8
+RUN apt-get clean && apt-get update \
+    && apt-get -yq install software-properties-common \
+    && add-apt-repository ppa:ondrej/php \
     && apt-get -yq install --no-install-recommends \
-        # 暂无 7.4: mcrypt
-        php7.4-cli \
-        php7.4-fpm \
-        php7.4-common \
-        php7.4-curl \
+        php${PHP_VERSION}-cli \
+        php${PHP_VERSION}-fpm \
+        php${PHP_VERSION}-common \
+        php${PHP_VERSION}-curl \
+        php${PHP_VERSION}-xml \
+        php${PHP_VERSION}-bcmath \
+        php${PHP_VERSION}-mbstring \
+        php${PHP_VERSION}-mcrypt \
+        php${PHP_VERSION}-dev \
+        php${PHP_VERSION}-zip \
+        php${PHP_VERSION}-bz2 \
+        php${PHP_VERSION}-intl \
+        php${PHP_VERSION}-soap \
+        php${PHP_VERSION}-gd \
+        php${PHP_VERSION}-exif \
+        php${PHP_VERSION}-tokenizer \
+        php${PHP_VERSION}-gmp \
+        php${PHP_VERSION}-imap \
+        php${PHP_VERSION}-readline \
+        php${PHP_VERSION}-ctype \
+        php${PHP_VERSION}-xdebug \
+        php${PHP_VERSION}-opcache \
+        php${PHP_VERSION}-memcached \
+        php${PHP_VERSION}-redis \
+        php${PHP_VERSION}-mysql \
+        php${PHP_VERSION}-pdo-mysql \
+        php${PHP_VERSION}-mongodb \
+        php${PHP_VERSION}-pgsql \
+        php${PHP_VERSION}-pdo-pgsql \
+        php${PHP_VERSION}-sqlite \
+        php${PHP_VERSION}-sqlite3 \
+        # php${PHP_VERSION}-odbc \
+        # php${PHP_VERSION}-ldap \
+        # php${PHP_VERSION}-apcu \
+        # php${PHP_VERSION}-phpdbg \
+        # php${PHP_VERSION}-pspell \
+        # php${PHP_VERSION}-recode \
+        # php${PHP_VERSION}-tidy \
+        # php${PHP_VERSION}-xmlrpc \
+        # php${PHP_VERSION}-xsl \
         php7.4-json \
-        php7.4-xml \
-        php7.4-bcmath \
-        php7.4-mbstring \
-        php7.1-mcrypt \
-        php7.4-dev \
-        php7.4-zip \
-        php7.4-bz2 \
-        php7.4-intl \
-        php7.4-soap \
-        php7.4-gd \
-        php7.4-exif \
-        php7.4-tokenizer \
-        php7.4-gmp \
-        php7.4-imap \
-        php7.4-readline \
-        php7.4-ctype \
         php-pear \
         # php-tideways \
-        # php7.4-odbc \
-        # php7.4-ldap \
-        # php7.4-apcu \
-        # php7.4-phpdbg \
-        # php7.4-pspell \
-        # php7.4-recode \
-        # php7.4-tidy \
-        # php7.4-xmlrpc \
-        # php7.4-xsl \
-        php7.4-xdebug \
-        php7.4-opcache \
-        php7.4-memcached \
-        php7.4-redis \
-        php7.4-mysql \
-        php7.4-pdo-mysql \
-        php7.4-mongodb \
-        php7.4-pgsql \
-        php7.4-pdo-pgsql \
-        php7.4-sqlite \
-        php7.4-sqlite3 \
     && apt-get clean
-
-# 配置 PHP 以及 扩展
-COPY ./build/php.sh /etc/service/php-fpm/run
-RUN mkdir -p /run/php \
-    && chmod +x /etc/service/php-fpm/run \
-    && usermod -u 1000 www-data \
-    # php-fpm.conf
-    && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.4/fpm/php-fpm.conf \
-    # php.ini fpm
-    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.4/fpm/php.ini \
-    # php.ini cli
-    && sed -i -e "s/;date.timezone.*/date.timezone = $TIMEZONE/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.4/cli/php.ini \
-    # www.conf
-    # 如果监听 9000 端口，需要修改相应的 Nginx 配置文件
-    # && sed -i -e "s/listen = .*/listen = 0.0.0.0:9000/" /etc/php/7.4/fpm/pool.d/www.conf \
-    && sed -i -e "s/pm.max_children = 5/pm.max_children = 20/" /etc/php/7.4/fpm/pool.d/www.conf \
-    && sed -i -e "s/;catch_workers_output = yes/catch_workers_output = yes/" /etc/php/7.4/fpm/pool.d/www.conf \
-    # opcache.ini fpm
-    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/7.4/fpm/php.ini \
-    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/7.4/fpm/php.ini \
-    # opcache.ini cli
-    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/7.4/cli/php.ini \
-    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/7.4/cli/php.ini
 
 #
 #--------------------------------------------------------------------------
@@ -169,7 +92,27 @@ RUN mkdir -p /run/php \
 #
 RUN curl -s http://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer && \
-    echo 'export PATH=${PATH}:/var/www/vendor/bin' >> ~/.bashrc
+    echo 'export PATH=${PATH}:/app/vendor/bin' >> ~/.bashrc
+
+#
+#--------------------------------------------------------------------------
+# 安装配置 Nginx
+#--------------------------------------------------------------------------
+#
+RUN add-apt-repository ppa:nginx/stable -y \
+    && apt-get -yq install --no-install-recommends nginx \
+    && echo 'daemon off;' >> /etc/nginx/nginx.conf \
+    && apt-get clean
+COPY ./build/app.dev.conf /etc/nginx/sites-available/default
+COPY ./build/nginx.sh /etc/service/nginx/run
+RUN  chmod +x /etc/service/nginx/run
+
+#
+#--------------------------------------------------------------------------
+# 清理 APT 临时数据
+#--------------------------------------------------------------------------
+#
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #
 #--------------------------------------------------------------------------
@@ -177,20 +120,7 @@ RUN curl -s http://getcomposer.org/installer | php && \
 #--------------------------------------------------------------------------
 #
 COPY ./build/crontab /etc/cron.d/www-data
-RUN  chmod -R 644 /etc/cron.d
-
-#
-#--------------------------------------------------------------------------
-# 配置命令别名
-#--------------------------------------------------------------------------
-#
-COPY ./build/aliases.sh /root/aliases.sh
-RUN echo '' >> ~/.bashrc \
-    && echo '# Load Custom Aliases' >> ~/.bashrc \
-    && echo 'source /root/aliases.sh' >> ~/.bashrc \
-	&& echo '' >> ~/.bashrc \
-	&& sed -i 's/\r//' ~/aliases.sh \
-	&& sed -i 's/^#! \/bin\/sh/#! \/bin\/bash/' ~/aliases.sh
+RUN chmod -R 644 /etc/cron.d
 
 #
 #--------------------------------------------------------------------------
@@ -202,44 +132,76 @@ RUN chmod +x /etc/service/worker/run
 
 #
 #--------------------------------------------------------------------------
-# 安装配置 Nginx
+# 配置 PHP 以及 扩展
 #--------------------------------------------------------------------------
 #
-RUN apt-add-repository ppa:nginx/stable -y \
-    && apt-get update \
-    && apt-get -yq install --no-install-recommends nginx \
-    && echo 'daemon off;' >> /etc/nginx/nginx.conf \
-    && apt-get clean
-COPY ./build/app.dev.conf /etc/nginx/sites-available/default
-COPY ./build/nginx.sh /etc/service/nginx/run
-RUN  chmod +x /etc/service/nginx/run
+COPY ./build/php.sh /etc/service/php-fpm/run
+RUN mkdir -p /run/php \
+    && chmod +x /etc/service/php-fpm/run \
+    && usermod -u 1000 www-data \
 
-# Larave 项目目录
-VOLUME /var/www
+    # php-fpm.conf
+    && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf \
+
+    # php.ini fpm
+    && sed -i -e "s/;date.timezone.*/date.timezone = ${TIMEZONE}/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+
+    # php.ini cli
+    && sed -i -e "s/;date.timezone.*/date.timezone = ${TIMEZONE}/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/${PHP_VERSION}/cli/php.ini \
+
+    # www.conf
+    && sed -i -e "s/listen = .*/listen = 0.0.0.0:9000/" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
+    && sed -i -e "s/pm.max_children = 5/pm.max_children = 20/" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
+    && sed -i -e "s/;catch_workers_output = yes/catch_workers_output = yes/" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
+
+
+    # opcache.ini fpm
+    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/${PHP_VERSION}/fpm/php.ini \
+
+    # opcache.ini cli
+    && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=64/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/;opcache.use_cwd=1/opcache.use_cwd=0/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/;opcache.max_file_size=0/opcache.max_file_size=0/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=30000/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/${PHP_VERSION}/cli/php.ini \
+    && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/${PHP_VERSION}/cli/php.ini
 
 #
 #--------------------------------------------------------------------------
 # 收尾
 #--------------------------------------------------------------------------
 #
-
-# 清理 APT
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 # 设置默认工作目录
-WORKDIR /var/www
+WORKDIR /app
+# Larave 项目目录
+VOLUME /app
 
-# Laravel 依赖安装或项目新建脚本，在 shell 中执行 lara-setup，
-# 脚本将自动配置 Laravel 项目到 /var/www 目录中
-COPY ./build/lara-setup.sh /usr/local/bin/lara-setup
-RUN chmod +x /usr/local/bin/lara-setup
-
-# 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝您的 Laravel 项目并执行依赖安装。
-ONBUILD COPY . /var/www
-ONBUILD RUN cd /var/www && composer install --no-scripts
-ONBUILD RUN chmod -R 777 storage bootstrap/cache
+# 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝您的 Laravel 项目并执行依赖~安装。
+ONBUILD COPY . /app
+ONBUILD RUN cd /app && composer install --no-scripts
+ONBUILD RUN chown -R 1000:33 storage bootstrap/cache
+ONBUILD RUN chmod -R 751 storage bootstrap/cache
+ONBUILD RUN chmod -R o+r storage bootstrap/cache
 
 # 暴露端口
+EXPOSE 9000
 EXPOSE 80
 
 ENTRYPOINT ["/bin/bash", "-c"]

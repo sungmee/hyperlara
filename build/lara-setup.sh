@@ -1,14 +1,16 @@
 #! /bin/sh
-cd /var/www
-if [ -f "composer.json" ]
-then
-    composer install --no-scripts
-    chmod -R 777 storage bootstrap/cache
-else
-    cp -a /var/www /var/www-backup
-    rm -rf * .[^.]*
-    cd ..
-    composer create-project --prefer-dist laravel/laravel www
-    chmod -R 777 /var/www/storage /var/www/bootstrap/cache
-    mv /var/www-backup /var/www/www-backup
-fi
+cd /app
+if [ -f "/app/composer.json" ]
+    then
+        composer install --no-scripts
+    else
+        cp -a /app /backup
+        rm -rf * .[^.]*
+        cd ..
+        composer create-project --prefer-dist laravel/laravel www
+        mv /backup /app/backup
+    fi
+
+chmod -R 1000:33 /app/storage /app/bootstrap/cache
+chmod -R 751 /app/storage /app/bootstrap/cache
+chmod -R o+r /app/storage /app/bootstrap/cache

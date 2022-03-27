@@ -35,6 +35,7 @@ CMD ["/sbin/my_init"]
 # 安装配置 PHP、PHP 扩展和其它软体
 #--------------------------------------------------------------------------
 #
+# 必须扩展：BCMath,Ctype,DOM,Fileinfo,JSON,Mbstring,OpenSSL,PCRE,PDO,Tokenizer,XML
 # RUN locale-gen en_US.UTF-8
 RUN apt-get clean && apt-get update \
     && apt-get -yq install software-properties-common \
@@ -62,15 +63,15 @@ RUN apt-get clean && apt-get update \
         php${PHP_VERSION}-ctype \
         php${PHP_VERSION}-xdebug \
         php${PHP_VERSION}-opcache \
-        php${PHP_VERSION}-memcached \
+        # php${PHP_VERSION}-memcached \
         php${PHP_VERSION}-redis \
         php${PHP_VERSION}-mysql \
         php${PHP_VERSION}-pdo-mysql \
-        php${PHP_VERSION}-mongodb \
-        php${PHP_VERSION}-pgsql \
-        php${PHP_VERSION}-pdo-pgsql \
-        php${PHP_VERSION}-sqlite \
-        php${PHP_VERSION}-sqlite3 \
+        # php${PHP_VERSION}-mongodb \
+        # php${PHP_VERSION}-pgsql \
+        # php${PHP_VERSION}-pdo-pgsql \
+        # php${PHP_VERSION}-sqlite \
+        # php${PHP_VERSION}-sqlite3 \
         # php${PHP_VERSION}-odbc \
         # php${PHP_VERSION}-ldap \
         # php${PHP_VERSION}-apcu \
@@ -105,7 +106,7 @@ RUN add-apt-repository ppa:nginx/stable -y \
     && apt-get clean
 COPY ./build/app.dev.conf /etc/nginx/sites-available/default
 COPY ./build/nginx.sh /etc/service/nginx/run
-RUN  chmod +x /etc/service/nginx/run
+RUN chmod +x /etc/service/nginx/run
 
 #
 #--------------------------------------------------------------------------

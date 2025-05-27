@@ -1,4 +1,4 @@
-FROM phusion/baseimage:master
+FROM phusion/baseimage:noble-1.0.2
 
 LABEL maintainer="M.Chan <mo@lxooo.com>"
 
@@ -6,7 +6,7 @@ LABEL maintainer="M.Chan <mo@lxooo.com>"
 ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive
 ENV TIMEZONE UTC
-ENV PHP_VERSION 8.1
+ENV PHP_VERSION 8.4
 # 兼容 Redis docker
 ENV REDIS_PORT 6379
 
@@ -81,7 +81,7 @@ RUN apt-get clean && apt-get update \
         # php${PHP_VERSION}-tidy \
         # php${PHP_VERSION}-xmlrpc \
         # php${PHP_VERSION}-xsl \
-        php7.4-json \
+        php-json \
         php-pear \
         # php-tideways \
     && apt-get clean
@@ -139,7 +139,8 @@ RUN chmod +x /etc/service/worker/run
 COPY ./build/php.sh /etc/service/php-fpm/run
 RUN mkdir -p /run/php \
     && chmod +x /etc/service/php-fpm/run \
-    && usermod -u 1000 www-data \
+    # && userdel ubuntu \
+    # && usermod -u 1000 www-data \
 
     # php-fpm.conf
     && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf \
@@ -197,7 +198,7 @@ VOLUME /app
 # 以本镜像为母本构建您的自定义镜像时，下面命令将拷贝您的 Laravel 项目并执行依赖~安装。
 ONBUILD COPY . /app
 ONBUILD RUN cd /app && composer install --no-scripts
-ONBUILD RUN chown -R 1000:33 storage bootstrap/cache
+ONBUILD RUN chown -R 33:33 storage bootstrap/cache
 ONBUILD RUN chmod -R 751 storage bootstrap/cache
 ONBUILD RUN chmod -R o+r storage bootstrap/cache
 

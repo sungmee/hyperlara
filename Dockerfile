@@ -70,8 +70,8 @@ RUN apt-get clean && apt-get update \
         # php${PHP_VERSION}-mongodb \
         # php${PHP_VERSION}-pgsql \
         # php${PHP_VERSION}-pdo-pgsql \
-        # php${PHP_VERSION}-sqlite \
-        # php${PHP_VERSION}-sqlite3 \
+        php${PHP_VERSION}-sqlite \
+        php${PHP_VERSION}-sqlite3 \
         # php${PHP_VERSION}-odbc \
         # php${PHP_VERSION}-ldap \
         # php${PHP_VERSION}-apcu \

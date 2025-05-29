@@ -3,12 +3,11 @@ FROM phusion/baseimage:noble-1.0.2
 LABEL maintainer="M.Chan <mo@lxooo.com>"
 
 # 设置环境变量
-ENV HOME /root
-ENV DEBIAN_FRONTEND noninteractive
-ENV TIMEZONE UTC
-ENV PHP_VERSION 8.4
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TIMEZONE=UTC
+ENV PHP_VERSION=8.4
 # 兼容 Redis docker
-ENV REDIS_PORT 6379
+ENV REDIS_PORT=6379
 
 #
 #--------------------------------------------------------------------------
@@ -32,10 +31,9 @@ CMD ["/sbin/my_init"]
 
 #
 #--------------------------------------------------------------------------
-# 安装配置 PHP、PHP 扩展和其它软体
+# 安装 PHP、PHP 扩展
 #--------------------------------------------------------------------------
 #
-# 必须扩展：BCMath,Ctype,DOM,Fileinfo,JSON,Mbstring,OpenSSL,PCRE,PDO,Tokenizer,XML
 # RUN locale-gen en_US.UTF-8
 RUN apt-get clean && apt-get update \
     && apt-get -yq install software-properties-common \
@@ -46,74 +44,54 @@ RUN apt-get clean && apt-get update \
         php${PHP_VERSION}-common \
         php${PHP_VERSION}-curl \
         php${PHP_VERSION}-xml \
-        php${PHP_VERSION}-bcmath \
-        php${PHP_VERSION}-mbstring \
-        php${PHP_VERSION}-mcrypt \
-        php${PHP_VERSION}-dev \
         php${PHP_VERSION}-zip \
-        php${PHP_VERSION}-bz2 \
-        php${PHP_VERSION}-intl \
-        php${PHP_VERSION}-soap \
-        php${PHP_VERSION}-gd \
-        php${PHP_VERSION}-exif \
-        php${PHP_VERSION}-tokenizer \
+        # 多字节字符串操作 Laravel 需要
+        php${PHP_VERSION}-mbstring \
+        # 高精度数学运算 Laravel 需要
+        php${PHP_VERSION}-bcmath \
+        # 大整数高精度计算，特定领域（如区块链、密码学）
         php${PHP_VERSION}-gmp \
-        php${PHP_VERSION}-imap \
-        php${PHP_VERSION}-readline \
-        php${PHP_VERSION}-ctype \
-        php${PHP_VERSION}-xdebug \
-        php${PHP_VERSION}-opcache \
+        # 国际化扩展 Laravel 需要
+        php${PHP_VERSION}-intl \
+        # 图像处理（缩放、水印、验证码）。
+        # php${PHP_VERSION}-gd \
+        # 实现邮件拉取功能（如工单系统）。
+        # php${PHP_VERSION}-imap \
+        # 生产环境通常不需要 XDebug
+        # php${PHP_VERSION}-xdebug \
         # php${PHP_VERSION}-memcached \
         php${PHP_VERSION}-redis \
-        php${PHP_VERSION}-mysql \
         php${PHP_VERSION}-pdo-mysql \
         # php${PHP_VERSION}-mongodb \
-        # php${PHP_VERSION}-pgsql \
         # php${PHP_VERSION}-pdo-pgsql \
-        php${PHP_VERSION}-sqlite \
         php${PHP_VERSION}-sqlite3 \
-        # php${PHP_VERSION}-odbc \
-        # php${PHP_VERSION}-ldap \
-        # php${PHP_VERSION}-apcu \
-        # php${PHP_VERSION}-phpdbg \
-        # php${PHP_VERSION}-pspell \
-        # php${PHP_VERSION}-recode \
+        # 清理富文本编辑器内容（如评论系统）。
         # php${PHP_VERSION}-tidy \
-        # php${PHP_VERSION}-xmlrpc \
-        # php${PHP_VERSION}-xsl \
-        php-json \
         php-pear \
-        # php-tideways \
-    && apt-get clean
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #
 #--------------------------------------------------------------------------
-# 安装 Composer:
+# 安装 Composer
 #--------------------------------------------------------------------------
 #
 RUN curl -s http://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer && \
-    echo 'export PATH=${PATH}:/app/vendor/bin' >> ~/.bashrc
+    echo 'export PATH=${PATH}:/app/vendor/bin' >> ~/.bashrc \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #
 #--------------------------------------------------------------------------
-# 安装配置 Nginx
+# 安装 Nginx
 #--------------------------------------------------------------------------
 #
-RUN add-apt-repository ppa:nginx/stable -y \
+COPY ./build/nginx.sh /etc/service/nginx/run
+RUN chmod +x /etc/service/nginx/run \
+    && add-apt-repository ppa:nginx/stable -y \
     && apt-get -yq install --no-install-recommends nginx \
     && echo 'daemon off;' >> /etc/nginx/nginx.conf \
-    && apt-get clean
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 COPY ./build/app.dev.conf /etc/nginx/sites-available/default
-COPY ./build/nginx.sh /etc/service/nginx/run
-RUN chmod +x /etc/service/nginx/run
-
-#
-#--------------------------------------------------------------------------
-# 清理 APT 临时数据
-#--------------------------------------------------------------------------
-#
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #
 #--------------------------------------------------------------------------
@@ -139,30 +117,23 @@ RUN chmod +x /etc/service/worker/run
 COPY ./build/php.sh /etc/service/php-fpm/run
 RUN mkdir -p /run/php \
     && chmod +x /etc/service/php-fpm/run \
-    # && userdel ubuntu \
-    # && usermod -u 1000 www-data \
-
+    # && userdel ubuntu && usermod -u 1000 www-data \
     # php-fpm.conf
     && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf \
-
     # php.ini fpm
     && sed -i -e "s/;date.timezone.*/date.timezone = ${TIMEZONE}/" /etc/php/${PHP_VERSION}/fpm/php.ini \
     && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/${PHP_VERSION}/fpm/php.ini \
     && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/${PHP_VERSION}/fpm/php.ini \
     && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/${PHP_VERSION}/fpm/php.ini \
-
     # php.ini cli
     && sed -i -e "s/;date.timezone.*/date.timezone = ${TIMEZONE}/" /etc/php/${PHP_VERSION}/cli/php.ini \
     && sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = 20M/" /etc/php/${PHP_VERSION}/cli/php.ini \
     && sed -i -e "s/post_max_size = .*/post_max_size = 20M/" /etc/php/${PHP_VERSION}/cli/php.ini \
     && sed -i -e "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/${PHP_VERSION}/cli/php.ini \
-
     # www.conf
     && sed -i -e "s/listen = .*/listen = 0.0.0.0:9000/" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
     && sed -i -e "s/pm.max_children = 5/pm.max_children = 20/" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
     && sed -i -e "s/;catch_workers_output = yes/catch_workers_output = yes/" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
-
-
     # opcache.ini fpm
     && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/${PHP_VERSION}/fpm/php.ini \
     && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/${PHP_VERSION}/fpm/php.ini \
@@ -173,7 +144,6 @@ RUN mkdir -p /run/php \
     && sed -i -e "s/;opcache.validate_timestamps=1/opcache.validate_timestamps=1/" /etc/php/${PHP_VERSION}/fpm/php.ini \
     && sed -i -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=2/" /etc/php/${PHP_VERSION}/fpm/php.ini \
     && sed -i -e "s/;opcache.save_comments=1/opcache.save_comments=1/" /etc/php/${PHP_VERSION}/fpm/php.ini \
-
     # opcache.ini cli
     && sed -i -e "s/;opcache.enable=1/opcache.enable=1/" /etc/php/${PHP_VERSION}/cli/php.ini \
     && sed -i -e "s/;opcache.memory_consumption=128/opcache.memory_consumption=256/" /etc/php/${PHP_VERSION}/cli/php.ini \
